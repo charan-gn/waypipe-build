@@ -24,9 +24,22 @@ jobs:
       - uses: actions/checkout@v4
       - name: Setup arm64 cross toolchain
         run: |
-          # Remove security sources that don't serve arm64
-          sudo find /etc/apt -name '*.sources' -exec sed -i '/security.ubuntu.com/d' {} +
-          sudo find /etc/apt -name '*.list' -exec sed -i '/security.ubuntu.com/d' {} +
+          # Overwrite apt sources: archive for amd64, ports for arm64, no security
+          sudo tee /etc/apt/sources.list.d/ubuntu.sources << 'EOF'
+          Types: deb
+          URIs: http://archive.ubuntu.com/ubuntu
+          Suites: noble noble-updates noble-backports noble-security
+          Components: main universe restricted multiverse
+          Architectures: amd64
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+
+          Types: deb
+          URIs: http://ports.ubuntu.com/ubuntu-ports
+          Suites: noble noble-updates noble-backports noble-security
+          Components: main universe restricted multiverse
+          Architectures: arm64
+          Signed-By: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+          EOF
           sudo dpkg --add-architecture arm64
           sudo apt-get update
           sudo apt-get install -y \
