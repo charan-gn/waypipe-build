@@ -28,9 +28,21 @@ jobs:
 
       - name: Setup arm64 cross toolchain
         run: |
-          # Fix apt: security.ubuntu.com doesn't serve arm64, use archive instead
-          sudo sed -i 's|https://security.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list
-          sudo sed -i 's|https://security.ubuntu.com/ubuntu|http://archive.ubuntu.com/ubuntu|g' /etc/apt/sources.list.d/*.list 2>/dev/null || true
+          # Ubuntu 24.04 uses deb822 format in ubuntu.sources
+          # Security repos don't serve arm64, so constrain them to amd64
+          sudo python3 -c "
+import re, pathlib
+p = pathlib.Path('/etc/apt/sources.list.d/ubuntu.sources')
+content = p.read_text()
+# Split into stanzas (separated by blank lines), add 'Architectures: amd64' to security stanza
+stanzas = re.split(r'\n\n+', content)
+new_stanzas = []
+for s in stanzas:
+    if 'security.ubuntu.com' in s and 'Architectures:' not in s:
+        s = s.rstrip() + '\nArchitectures: amd64'
+    new_stanzas.append(s)
+p.write_text('\n\n'.join(new_stanzas))
+"
           sudo dpkg --add-architecture arm64
           sudo apt-get update
           sudo apt-get install -y \

@@ -1,7 +1,7 @@
 [build]
 pre-build = [
     "dpkg --add-architecture $CROSS_DEB_ARCH",
-    "apt-get update && apt-get --assume-yes install libvulkan-dev:$CROSS_DEB_ARCH"
+    "apt-get update && apt-get --assume-yes install libvulkan-dev:$CROSS_DEB_ARCH libgbm-dev:$CROSS_DEB_ARCH liblz4-dev:$CROSS_DEB_ARCH libzstd-dev:$CROSS_DEB_ARCH"
 ]
 [target.i686-unknown-freebsd]
 pre-build = []
