@@ -49,7 +49,7 @@ jobs:
             libzstd-dev:arm64 \
             gcc-aarch64-linux-gnu \
             g++-aarch64-linux-gnu \
-            pkg-config-aarch64-linux-gnu
+            pkg-config
       - uses: actions-rust-lang/setup-rust-toolchain@v1
         with:
           target: aarch64-unknown-linux-gnu
